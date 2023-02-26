@@ -1,0 +1,92 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+public class lecture14 {
+    private WebDriver driver;
+
+    public lecture14() {
+    }
+
+    @BeforeSuite
+    protected final void setupTestSuite() {
+        WebDriverManager.chromedriver().setup();
+        WebDriverManager.edgedriver().setup();
+    }
+
+    @BeforeMethod
+    protected final void setUpTest() {
+        this.driver = new ChromeDriver();
+        this.driver.manage().window().maximize();
+        this.driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(20L));
+        this.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5L));
+    }
+
+    @AfterMethod
+    protected final void tearDownTest() {
+        if (this.driver != null) {
+            this.driver.quit();
+        }
+
+    }
+
+    @DataProvider(
+        name = "getUsers"
+    )
+    public Object[][] getUsers() {
+        return new Object[][]{{"DimitarTarkalanov", "Dimitar1.Tarkalanov1"}};
+    }
+
+    @Test(
+        dataProvider = "getUsers"
+    )
+    public void testLoginWithWaits(String user, String password) {
+        this.driver.get("http://training.skillo-bg.com:4300/posts/all");
+        WebElement loginLink = this.driver.findElement(By.id("nav-link-login"));
+        loginLink.click();
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds(10L));
+        wait.until(ExpectedConditions.urlToBe("http://training.skillo-bg.com:4300/users/login"));
+        WebElement signInElement = this.driver.findElement(By.xpath("//*[text()='Sign in']"));
+        wait.until(ExpectedConditions.visibilityOf(signInElement));
+        WebElement userNameField = this.driver.findElement(By.id("defaultLoginFormUsername"));
+        userNameField.sendKeys(new CharSequence[]{user});
+        WebElement passwordField = this.driver.findElement(By.id("defaultLoginFormPassword"));
+        passwordField.sendKeys(new CharSequence[]{password});
+        WebElement signInButton = (WebElement)wait.until(ExpectedConditions.elementToBeClickable(By.id("sign-in-button")));
+        signInButton.click();
+    }
+
+    @Test
+    public void testLogoutButton() {
+        this.driver.get("http://training.skillo-bg.com:4300/posts/all");
+        WebElement logoutButton = this.driver.findElement(By.className("nav-link"));
+        logoutButton.click();
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds(10L));
+        wait.until(ExpectedConditions.urlToBe("http://training.skillo-bg.com:4300/posts/all"));
+        Assert.assertTrue(logoutButton.isEnabled(), "The logout is not displayed!");
+    }
+
+    @Test
+    public void testHomeButton() {
+        this.driver.get("http://training.skillo-bg.com:4300/posts/all");
+        WebElement homeIcon = this.driver.findElement(By.xpath("//*[@id='nav-link-home']"));
+        homeIcon.click();
+        Assert.assertTrue(homeIcon.isEnabled());
+    }
+}
